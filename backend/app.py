@@ -18,10 +18,6 @@ app = Flask(__name__)
 CORS(app, origins=f"http://{os.getenv('FRONTEND_ADDRESS')}:{os.getenv('FRONTEND_PORT')}")
 
 
-@app.route("/api/hello")
-def hello():
-    return jsonify({"message": "Hello from Flask backend"})
-
 @app.route("/api/health")
 def health():
     return jsonify({"status": "ok"}), 200
@@ -65,8 +61,6 @@ def get_module_info_route(module_id):
         return jsonify({"yearsInfo": years_info}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-@app.route("/api/add")
 
 @app.route("/api/user")
 def get_user():
