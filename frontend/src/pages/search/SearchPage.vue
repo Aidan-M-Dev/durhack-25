@@ -20,14 +20,31 @@
       <div class="filters">
         <div class="filter-group">
           <label for="course-filter">Filter by Course:</label>
-          <input
-            id="course-filter"
-            v-model="courseQuery"
-            @input="applyFilters"
-            type="text"
-            placeholder="Enter course name..."
-            class="filter-input"
-          />
+          <div class="filter-input-wrapper">
+            <input
+              id="course-filter"
+              v-model="courseQuery"
+              @input="applyFilters"
+              @focus="courseInputFocused = true"
+              @blur="handleCourseBlur"
+              type="text"
+              placeholder="Enter course name..."
+              class="filter-input"
+            />
+            <div v-if="courseInputFocused && courseQuery && filteredCourses.length > 0" class="course-dropdown">
+              <div
+                v-for="course in filteredCourses.slice(0, 5)"
+                :key="course.id"
+                @mousedown.prevent="selectCourse(course.title)"
+                class="course-option"
+              >
+                {{ course.title }}
+              </div>
+              <div v-if="filteredCourses.length > 5" class="course-more">
+                +{{ filteredCourses.length - 5 }} more courses
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -94,7 +111,9 @@ export default {
     const router = useRouter()
     const searchQuery = ref('')
     const allResults = ref([])
+    const courses = ref([])
     const courseQuery = ref('')
+    const courseInputFocused = ref(false)
     const loading = ref(false)
     const error = ref(null)
     let searchTimeout = null
@@ -115,6 +134,27 @@ export default {
 
       return filtered
     })
+
+    const filteredCourses = computed(() => {
+      if (!courseQuery.value.trim()) return []
+      const search = courseQuery.value.toLowerCase()
+      return courses.value.filter(course =>
+        course.title.toLowerCase().includes(search)
+      )
+    })
+
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('/api/courses')
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses')
+        }
+        const data = await response.json()
+        courses.value = data.courses || []
+      } catch (err) {
+        console.error('Error fetching courses:', err)
+      }
+    }
 
     const performSearch = async (query) => {
       // If neither search query nor course filter, clear results
@@ -169,6 +209,19 @@ export default {
       }
     }
 
+    const selectCourse = (courseTitle) => {
+      courseQuery.value = courseTitle
+      courseInputFocused.value = false
+      applyFilters()
+    }
+
+    const handleCourseBlur = () => {
+      // Delay to allow click event to fire first
+      setTimeout(() => {
+        courseInputFocused.value = false
+      }, 200)
+    }
+
     const clearSearch = () => {
       searchQuery.value = ''
       allResults.value = []
@@ -178,11 +231,21 @@ export default {
     }
 
     // Search from URL on mount
-    onMounted(() => {
+    onMounted(async () => {
+      await fetchCourses()
+
       const queryParam = route.query.q
+      const courseParam = route.query.course
+
+      if (courseParam) {
+        courseQuery.value = courseParam
+      }
+
       if (queryParam) {
         searchQuery.value = queryParam
         performSearch(queryParam)
+      } else if (courseParam) {
+        performSearch('')
       }
     })
 
@@ -190,11 +253,15 @@ export default {
       searchQuery,
       allResults,
       filteredResults,
+      filteredCourses,
       courseQuery,
+      courseInputFocused,
       loading,
       error,
       handleSearch,
       applyFilters,
+      selectCourse,
+      handleCourseBlur,
       clearSearch
     }
   }
@@ -244,9 +311,6 @@ h1 {
 }
 
 .filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
   margin-bottom: 2rem;
   padding: 1.25rem;
   background: white;
@@ -258,6 +322,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .filter-group label {
@@ -274,6 +339,8 @@ h1 {
   font-size: 0.95rem;
   background: white;
   transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-select:focus,
