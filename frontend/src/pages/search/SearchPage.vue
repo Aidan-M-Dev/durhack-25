@@ -54,12 +54,15 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import '/src/assets/shared.css'
 
 export default {
   name: 'SearchPage',
   setup() {
+    const route = useRoute()
+    const router = useRouter()
     const searchQuery = ref('')
     const results = ref([])
     const loading = ref(false)
@@ -92,10 +95,19 @@ export default {
       }
     }
 
+    const updateURL = (query) => {
+      if (query.trim()) {
+        router.push({ query: { q: query } })
+      } else {
+        router.push({ query: {} })
+      }
+    }
+
     const handleSearch = () => {
       // Debounce search - wait 300ms after user stops typing
       clearTimeout(searchTimeout)
       searchTimeout = setTimeout(() => {
+        updateURL(searchQuery.value)
         performSearch(searchQuery.value)
       }, 300)
     }
@@ -104,7 +116,17 @@ export default {
       searchQuery.value = ''
       results.value = []
       error.value = null
+      router.push({ query: {} })
     }
+
+    // Load search from URL on mount
+    onMounted(() => {
+      const queryParam = route.query.q
+      if (queryParam) {
+        searchQuery.value = queryParam
+        performSearch(queryParam)
+      }
+    })
 
     return {
       searchQuery,
