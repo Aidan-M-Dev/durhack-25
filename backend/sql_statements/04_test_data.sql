@@ -81,55 +81,55 @@ INSERT INTO courses (home_department_id, title) VALUES
   (4, 'BEng Computer Engineering'),
   (5, 'BSc Business Information Systems');
 
--- Insert Module Iterations (multiple years and terms)
+-- Insert Module Iterations (multiple years)
 -- CS101 (regular) - module_id 1
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (1, '2022', 1),
-  (1, '2023', 1),
-  (1, '2024', 1);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (1, '2022'),
+  (1, '2023'),
+  (1, '2024');
 
 -- CS102 - module_id 2
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (2, '2022', 2),
-  (2, '2023', 2),
-  (2, '2024', 2);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (2, '2022'),
+  (2, '2023'),
+  (2, '2024');
 
 -- CS201 - module_id 3
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (3, '2023', 1),
-  (3, '2024', 1);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (3, '2023'),
+  (3, '2024');
 
 -- CS202 - module_id 4
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (4, '2023', 2),
-  (4, '2024', 2);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (4, '2023'),
+  (4, '2024');
 
 -- CS301 - module_id 5
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (5, '2024', 1);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (5, '2024');
 
 -- CS302 - module_id 6
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (6, '2024', 2);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (6, '2024');
 
 -- CS101 Evening (duplicate code) - module_id 7
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (7, '2023', 1),
-  (7, '2024', 1);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (7, '2023'),
+  (7, '2024');
 
 -- MATH101 - module_id 8
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (8, '2023', 1),
-  (8, '2024', 1);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (8, '2023'),
+  (8, '2024');
 
 -- MATH102 - module_id 9
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (9, '2023', 2),
-  (9, '2024', 2);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (9, '2023'),
+  (9, '2024');
 
 -- MATH201 - module_id 10
-INSERT INTO module_iterations (module_id, academic_year_start_year, term) VALUES
-  (10, '2024', 1);
+INSERT INTO module_iterations (module_id, academic_year_start_year) VALUES
+  (10, '2024');
 
 -- Link Module Iterations to Lecturers
 INSERT INTO module_iterations_lecturers_links (module_iteration_id, lecturer_id) VALUES

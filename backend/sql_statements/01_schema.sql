@@ -25,8 +25,7 @@ CREATE TABLE IF NOT EXISTS courses (
 CREATE TABLE IF NOT EXISTS module_iterations (
   id SERIAL PRIMARY KEY,
   module_id INT REFERENCES modules(id) ON DELETE CASCADE,
-  academic_year_start_year VARCHAR(20) NOT NULL,
-  term INT NOT NULL
+  academic_year_start_year VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS module_iterations_lecturers_links (
