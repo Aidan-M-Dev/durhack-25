@@ -127,7 +127,7 @@ export default {
     const formatAcademicYear = (year) => {
       const yearNum = parseInt(year)
       const nextYear = yearNum + 1
-      return `${yearNum.toString().slice(-2)}/${nextYear.toString().slice(-2)}`
+      return `${yearNum.toString().slice(-2)}/${nextYear.toString().slice(-2)} AY`
     }
 
     const currentYear = computed(() => {
