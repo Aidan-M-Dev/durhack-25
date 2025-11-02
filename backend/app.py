@@ -1,0 +1,58 @@
+from flask import Flask, request, jsonify
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+from flask_cors import CORS
+from db import search_modules_by_code, get_module_info_with_iterations
+
+# Load .env from repo root if present so frontend and backend can share the same env file.
+# Fallback to default behaviour (load from CWD) if repo-root .env is not present.
+repo_root = Path(__file__).resolve().parents[1]
+env_path = repo_root / '.env'
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
+else:
+    load_dotenv()
+
+app = Flask(__name__)
+CORS(app, origins=f"http://{os.getenv('FRONTEND_ADDRESS')}:{os.getenv('FRONTEND_PORT')}")
+
+
+@app.route("/api/hello")
+def hello():
+    return jsonify({"message": "Hello from Flask backend"})
+
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "ok"}), 200
+
+@app.route("/api/searchModulesByCode/<module_code>")
+def search_modules_by_code_route(module_code):
+    try:
+        modules = search_modules_by_code(module_code)
+        return jsonify({"modules": modules}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/getModuleInfo/<module_id>")
+def get_module_info_route(module_id):
+    try:
+        years_info = get_module_info_with_iterations(module_id)
+
+        if years_info is None:
+            return jsonify({"error": "Module not found"}), 404
+
+        return jsonify({"yearsInfo": years_info}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/add")
+
+@app.route("/api/user")
+def get_user():
+    # TODO: Implement authentication with a local auth system
+    return jsonify({"error": "Authentication not yet implemented"}), 501
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
