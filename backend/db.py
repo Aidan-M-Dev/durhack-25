@@ -35,6 +35,33 @@ def search_modules_by_code(module_code):
     return modules
 
 
+def search_modules_by_name(search_term):
+    """
+    Search for modules by name using case-insensitive pattern matching.
+
+    Args:
+        search_term (str): The search term to match against module names
+
+    Returns:
+        list: List of module dictionaries matching the search term
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Use ILIKE for case-insensitive pattern matching
+    search_pattern = f"%{search_term}%"
+    cur.execute(
+        "SELECT * FROM modules WHERE name ILIKE %s OR code ILIKE %s ORDER BY code",
+        (search_pattern, search_pattern)
+    )
+    modules = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return modules
+
+
 def get_module_by_id(module_id):
     """
     Get a module by its ID.

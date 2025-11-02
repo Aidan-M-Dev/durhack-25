@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from flask_cors import CORS
-from db import search_modules_by_code, get_module_info_with_iterations
+from db import search_modules_by_code, search_modules_by_name, get_module_info_with_iterations
 
 # Load .env from repo root if present so frontend and backend can share the same env file.
 # Fallback to default behaviour (load from CWD) if repo-root .env is not present.
@@ -30,6 +30,18 @@ def health():
 def search_modules_by_code_route(module_code):
     try:
         modules = search_modules_by_code(module_code)
+        return jsonify({"modules": modules}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/searchModules")
+def search_modules_route():
+    try:
+        search_term = request.args.get('q', '')
+        if not search_term:
+            return jsonify({"modules": []}), 200
+
+        modules = search_modules_by_name(search_term)
         return jsonify({"modules": modules}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400

@@ -1,6 +1,10 @@
 <template>
   <div id="module-page">
-    <div v-if="loading">Loading module {{ moduleCode }}...</div>
+    <div class="header">
+      <router-link to="/" class="back-link">← Back to Search</router-link>
+    </div>
+
+    <div v-if="loading" class="loading">Loading module {{ moduleCode }}...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <h1>Module: {{ moduleCode }}</h1>
@@ -91,18 +95,68 @@ export default {
 </script>
 
 <style scoped>
+#module-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.back-link:hover {
+  background-color: #eff6ff;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
 .error {
-  color: red;
+  color: #dc2626;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
   padding: 1rem;
-  border: 1px solid red;
-  border-radius: 4px;
+  border-radius: 8px;
   margin: 1rem 0;
 }
 
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
 pre {
-  background-color: #f5f5f5;
-  padding: 1rem;
-  border-radius: 4px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  border-radius: 8px;
   overflow-x: auto;
+  font-size: 0.875rem;
 }
 </style>
