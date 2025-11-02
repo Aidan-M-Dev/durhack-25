@@ -1,25 +1,21 @@
 <template>
-  <div id="module-page">
-    <div class="header">
-      <router-link to="/" class="back-link">← Back to Search</router-link>
-    </div>
+  <div class="page-container">
+    <div class="content-container">
+      <div class="header">
+        <router-link to="/" class="back-link">← Back to Search</router-link>
+      </div>
 
-    <div v-if="loading" class="loading">Loading module {{ moduleCode }}...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else-if="!currentYearData">
-      <p class="no-data">No data available for this module.</p>
-    </div>
-    <div v-else class="module-content">
+      <div v-if="loading" class="loading">Loading module {{ moduleCode }}...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
+      <div v-else-if="!currentYearData" class="no-data">
+        No data available for this module.
+      </div>
+      <div v-else class="module-content">
       <!-- Module Header -->
       <div class="module-header">
         <div class="module-title">
           <span class="code">{{ moduleCode }}</span>
           <h1 class="name">{{ moduleName }}</h1>
-        </div>
-        <div v-if="weightedRating" class="rating-badge">
-          <div class="rating-value">{{ weightedRating.toFixed(1) }}</div>
-          <div class="rating-stars">★★★★★</div>
-          <div class="rating-label">Average Rating</div>
         </div>
       </div>
 
@@ -56,16 +52,19 @@
       <!-- Reviews Section -->
       <div class="reviews-section">
         <h2>Reviews ({{ totalReviews }})</h2>
+        <div v-if="weightedRating" class="average-rating">
+          Average Rating: <strong>{{ weightedRating.toFixed(1) }}/5</strong>
+        </div>
 
         <div v-if="totalReviews === 0" class="no-reviews">
           No reviews yet for this module.
         </div>
 
-        <div v-else class="reviews-container">
+        <div v-else class="reviews-container custom-scrollbar">
           <div v-for="yearGroup in reviewsByYear" :key="yearGroup.year" class="year-group">
             <div class="year-header">
               <span class="year">{{ yearGroup.year }}</span>
-              <span v-if="yearGroup.lecturerChange" class="lecturer-change">
+              <span v-if="yearGroup.lecturerChange" class="badge badge-purple">
                 👤 Lecturer changed: {{ yearGroup.lecturerChange }}
               </span>
             </div>
@@ -89,6 +88,7 @@
             </div>
           </div>
         </div>
+        </div>
       </div>
     </div>
   </div>
@@ -97,6 +97,7 @@
 <script>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import '/src/assets/shared.css'
 
 export default {
   name: 'ModulePage',
@@ -250,77 +251,22 @@ export default {
 </script>
 
 <style scoped>
-#module-page {
-  min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 2rem 1rem;
-}
-
 .header {
-  max-width: 1200px;
-  margin: 0 auto 2rem;
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  color: #3b82f6;
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
-.back-link:hover {
-  background-color: #eff6ff;
-}
-
-.loading {
-  text-align: center;
-  padding: 4rem;
-  color: #6b7280;
-  font-size: 1.125rem;
-}
-
-.error {
-  max-width: 1200px;
-  margin: 0 auto;
-  color: #dc2626;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  padding: 1.5rem;
-  border-radius: 12px;
+  margin-bottom: 2rem;
 }
 
 .no-data {
   text-align: center;
   padding: 4rem;
-  color: #6b7280;
-  font-size: 1.125rem;
-}
-
-.module-content {
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 /* Module Header */
 .module-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
   margin-bottom: 2rem;
   padding: 2rem;
   background: white;
   border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.module-title {
-  flex: 1;
 }
 
 .code {
@@ -338,35 +284,6 @@ export default {
   color: #1f2937;
   margin: 0;
   line-height: 1.2;
-}
-
-.rating-badge {
-  text-align: center;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  color: white;
-  min-width: 120px;
-}
-
-.rating-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 0.25rem;
-}
-
-.rating-stars {
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
-  opacity: 0.9;
-}
-
-.rating-label {
-  font-size: 0.75rem;
-  opacity: 0.9;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 /* Info Section */
@@ -411,8 +328,7 @@ export default {
   color: #1f2937;
 }
 
-.text-muted {
-  color: #9ca3af;
+.info-value.text-muted {
   font-style: italic;
 }
 
@@ -428,7 +344,20 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   color: #1f2937;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 0.5rem 0;
+}
+
+.average-rating {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.average-rating strong {
+  color: #1f2937;
+  font-size: 1.1rem;
 }
 
 .no-reviews {
@@ -442,24 +371,6 @@ export default {
   max-height: 600px;
   overflow-y: auto;
   padding-right: 0.5rem;
-}
-
-.reviews-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.reviews-container::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  border-radius: 4px;
-}
-
-.reviews-container::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
-}
-
-.reviews-container::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
 }
 
 .year-group {
@@ -485,14 +396,6 @@ export default {
   color: #1f2937;
 }
 
-.lecturer-change {
-  font-size: 0.875rem;
-  color: #7c3aed;
-  background: #f5f3ff;
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
-  font-weight: 500;
-}
 
 .reviews-list {
   display: flex;
@@ -559,14 +462,6 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .module-header {
-    flex-direction: column;
-  }
-
-  .rating-badge {
-    width: 100%;
-  }
-
   .info-grid {
     grid-template-columns: 1fr;
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="search-page">
+  <div class="page-container">
     <div class="search-container">
       <h1>Search Modules</h1>
 
@@ -9,7 +9,7 @@
           @input="handleSearch"
           type="text"
           placeholder="Search by module name or code..."
-          class="search-input"
+          class="input search-input"
           autofocus
         />
         <button v-if="searchQuery" @click="clearSearch" class="clear-button">
@@ -55,6 +55,7 @@
 
 <script>
 import { ref } from 'vue'
+import '/src/assets/shared.css'
 
 export default {
   name: 'SearchPage',
@@ -118,12 +119,6 @@ export default {
 </script>
 
 <style scoped>
-.search-page {
-  min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 2rem 1rem;
-}
-
 .search-container {
   max-width: 800px;
   margin: 0 auto;
@@ -143,19 +138,7 @@ h1 {
 }
 
 .search-input {
-  width: 100%;
-  padding: 1rem 3rem 1rem 1.5rem;
-  font-size: 1.125rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background-color: white;
-}
-
-.search-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  padding-right: 3rem;
 }
 
 .clear-button {
@@ -177,19 +160,7 @@ h1 {
   color: #6b7280;
 }
 
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-  font-size: 1.125rem;
-}
-
 .error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 1rem;
-  border-radius: 8px;
   text-align: center;
 }
 
