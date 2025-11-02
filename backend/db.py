@@ -282,7 +282,6 @@ def get_module_info_with_iterations(module_id):
     years_info = {}
     for iteration in iterations:
         year = iteration['academic_year_start_year']
-        term = iteration['term']
 
         lecturers = get_lecturers_for_iteration(iteration['id'])
         courses = get_courses_for_iteration(iteration['id'])
@@ -291,7 +290,6 @@ def get_module_info_with_iterations(module_id):
         if year not in years_info:
             years_info[year] = {
                 "iteration_id": iteration['id'],
-                "term": term,
                 "lecturers": lecturers,
                 "courses": courses,
                 "reviews": reviews
