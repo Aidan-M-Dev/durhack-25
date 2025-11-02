@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ModulePage from '../pages/module/ModulePage.vue'
 import SearchPage from '../pages/search/SearchPage.vue'
+import AdminPage from '../pages/admin/AdminPage.vue'
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     name: 'module',
     component: ModulePage,
     props: true
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminPage
   }
 ]
 
