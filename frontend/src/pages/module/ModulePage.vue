@@ -21,7 +21,7 @@
 
       <!-- Current Info Section -->
       <div class="info-section">
-        <h2>Current Information ({{ currentYear }})</h2>
+        <h2>Current Information ({{ currentYearFormatted }})</h2>
 
         <div class="info-grid">
           <div class="info-item">
@@ -63,7 +63,7 @@
         <div v-else class="reviews-container custom-scrollbar">
           <div v-for="yearGroup in reviewsByYear" :key="yearGroup.year" class="year-group">
             <div class="year-header">
-              <span class="year">{{ yearGroup.year }}</span>
+              <span class="year">{{ yearGroup.yearFormatted }}</span>
               <span v-if="yearGroup.lecturerChange" class="badge badge-purple">
                 👤 Lecturer changed: {{ yearGroup.lecturerChange }}
               </span>
@@ -110,10 +110,20 @@ export default {
     const loading = ref(false)
     const error = ref(null)
 
+    const formatAcademicYear = (year) => {
+      const yearNum = parseInt(year)
+      const nextYear = yearNum + 1
+      return `${yearNum.toString().slice(-2)}/${nextYear.toString().slice(-2)}`
+    }
+
     const currentYear = computed(() => {
       if (!moduleData.value?.yearsInfo) return null
       const years = Object.keys(moduleData.value.yearsInfo).sort((a, b) => b - a)
       return years[0] || null
+    })
+
+    const currentYearFormatted = computed(() => {
+      return currentYear.value ? formatAcademicYear(currentYear.value) : null
     })
 
     const currentYearData = computed(() => {
@@ -169,6 +179,7 @@ export default {
 
         result.push({
           year,
+          yearFormatted: formatAcademicYear(year),
           reviews,
           lecturerChange
         })
@@ -241,6 +252,7 @@ export default {
       loading,
       error,
       currentYear,
+      currentYearFormatted,
       currentYearData,
       weightedRating,
       totalReviews,
