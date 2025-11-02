@@ -99,6 +99,38 @@ def get_user():
     # TODO: Implement authentication with a local auth system
     return jsonify({"error": "Authentication not yet implemented"}), 501
 
+@app.route("/api/admin/pendingReviews")
+def get_pending_reviews_route():
+    try:
+        reviews = get_pending_reviews()
+        return jsonify({"reviews": reviews}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/admin/rejectedReviews")
+def get_rejected_reviews_route():
+    try:
+        reviews = get_rejected_reviews()
+        return jsonify({"reviews": reviews}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/admin/acceptReview/<review_id>", methods=["POST"])
+def accept_review_route(review_id):
+    try:
+        result = accept_review(review_id)
+        return jsonify({"result": result}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/admin/rejectReview/<review_id>", methods=["POST"])
+def reject_review_route(review_id):
+    try:
+        result = reject_review(review_id)
+        return jsonify({"result": result}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
