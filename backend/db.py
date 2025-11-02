@@ -4,6 +4,8 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+from lib import notify_admins_of_reported_review
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 
@@ -249,7 +251,7 @@ def get_published_reviews_for_iteration(module_iteration_id):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     cur.execute(
-        "SELECT * FROM reviews WHERE module_iteration_id = %s AND (moderation_status = %s OR moderation_status = %s)",
+        "SELECT * FROM reviews WHERE module_iteration_id = %s AND moderation_status = %s",
         (module_iteration_id, 'published')
     )
     reviews = cur.fetchall()
@@ -288,6 +290,7 @@ def get_module_info_with_iterations(module_id):
 
         if year not in years_info:
             years_info[year] = {
+                "iteration_id": iteration['id'],
                 "term": term,
                 "lecturers": lecturers,
                 "courses": courses,
@@ -296,12 +299,13 @@ def get_module_info_with_iterations(module_id):
 
     return years_info
 
-def like_review(review_id, like_or_dislike=True):
+def like_or_dislike_review(review_id, like_or_dislike=True):
     """
-    Increment the like count for a review.
+    Increment or decrement the like count for a review.
 
     Args:
         review_id (int): The review ID
+        like_or_dislike (bool): True to like, False to dislike
 
     Returns:
         int: The new like count
@@ -309,10 +313,17 @@ def like_review(review_id, like_or_dislike=True):
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute(
-        "UPDATE reviews SET like_dislike = like_dislike %s 1 WHERE id = %s RETURNING like_dislike",
-        ('+' if like_or_dislike else '-', review_id)
-    )
+    if like_or_dislike:
+        cur.execute(
+            "UPDATE reviews SET like_dislike = like_dislike + 1 WHERE id = %s RETURNING like_dislike",
+            (review_id,)
+        )
+    else:
+        cur.execute(
+            "UPDATE reviews SET like_dislike = like_dislike - 1 WHERE id = %s RETURNING like_dislike",
+            (review_id,)
+        )
+
     result = cur.fetchone()
 
     conn.commit()
@@ -361,15 +372,139 @@ def report_review(review_id):
 
     return True
 
-
-def notify_admins_of_reported_review(review_id):
+def submit_review(module_iteration_id, text, rating, reasonable):
     """
-    Skeleton function to notify admins of a reported review.
+    Submit a new review for a module iteration.
+
+    Args:
+        module_iteration_id (int): The module iteration ID
+        text (str): Review comment
+        rating (int): Overall rating (1-5)
+        reasonable (bool): Whether the review passed sentiment analysis
+
+    Returns:
+        bool: True if successful
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(
+        "INSERT INTO reviews (module_iteration_id, overall_rating, comment, moderation_status, like_dislike) VALUES (%s, %s, %s, %s, 0)",
+        (module_iteration_id, rating, text, 'published' if reasonable else 'automatic_review')
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return True
+
+
+def get_pending_reviews():
+    """
+    Get all reviews that need moderation (not published).
+
+    Returns:
+        list: List of review dictionaries with module info
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("""
+        SELECT
+            r.*,
+            m.code as module_code,
+            m.name as module_name,
+            mi.academic_year_start_year
+        FROM reviews r
+        INNER JOIN module_iterations mi ON r.module_iteration_id = mi.id
+        INNER JOIN modules m ON mi.module_id = m.id
+        WHERE r.moderation_status != 'published' AND r.moderation_status != 'rejected'
+        ORDER BY r.created_at DESC
+    """)
+    reviews = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return reviews
+
+
+def get_rejected_reviews():
+    """
+    Get all rejected reviews.
+
+    Returns:
+        list: List of rejected review dictionaries with module info
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("""
+        SELECT
+            r.*,
+            m.code as module_code,
+            m.name as module_name,
+            mi.academic_year_start_year
+        FROM reviews r
+        INNER JOIN module_iterations mi ON r.module_iteration_id = mi.id
+        INNER JOIN modules m ON mi.module_id = m.id
+        WHERE r.moderation_status = 'rejected'
+        ORDER BY r.created_at DESC
+    """)
+    reviews = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return reviews
+
+
+def accept_review(review_id):
+    """
+    Accept a review - publish it and increase report tolerance by 2.
 
     Args:
         review_id (int): The review ID
+
+    Returns:
+        bool: True if successful
     """
-    # TODO: Implement admin notification system
-    # This could send emails, create notifications in admin panel, etc.
-    print(f"ADMIN NOTIFICATION: Review {review_id} has been reported and requires moderation")
-    pass
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(
+        "UPDATE reviews SET moderation_status = 'published', report_tolerance = report_tolerance + 2 WHERE id = %s",
+        (review_id,)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return True
+
+
+def reject_review(review_id):
+    """
+    Reject a review - set status to rejected.
+
+    Args:
+        review_id (int): The review ID
+
+    Returns:
+        bool: True if successful
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(
+        "UPDATE reviews SET moderation_status = 'rejected' WHERE id = %s",
+        (review_id,)
+    )
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return True
